@@ -1,0 +1,51 @@
+OASISFormat: 0.4
+Name:        containers-misc
+Version:     0.1
+Homepage:    https://github.com/c-cube/containers-misc
+Authors:     Simon Cruanes
+License:     BSD-2-clause
+LicenseFile: LICENSE
+Plugins:     META (0.3), DevFiles (0.3)
+OCamlVersion: >= 4.00.1
+BuildTools:  ocamlbuild
+AlphaFeatures: compiled_setup_ml, ocamlbuild_more_args
+
+Synopsis:    Random stuff too experimental for containers
+
+Library "containers_misc"
+  Path:             src/
+  Modules:          AbsSet, Automaton, Bij, CSM, Hashset, LazyGraph, PHashtbl,
+                    PrintBox, RoseTree, SmallSet, UnionFind, Univ, Puf,
+                    Backtrack
+  Pack:             true
+  FindlibName:      containers_misc
+
+Document "containers-misc"
+  Title:                Containers-misc docs
+  Type:                 ocamlbuild (0.3)
+  BuildTools+:          ocamldoc
+  Build$:               flag(docs)
+  Install:              true
+  XOCamlbuildPath:      .
+  XOCamlbuildExtraArgs:
+    "-docflags '-colorize-code -short-functors -charset utf-8'"
+  XOCamlbuildLibraries: containers_misc
+
+PreBuildCommand: make qtest-gen
+
+Executable run_qtest
+  Path:             qtest/
+  Install:          false
+  CompiledObject:   best
+  MainIs:           run_qtest.ml
+  Build$:           flag(tests)
+  BuildDepends:     sequence, gen, oUnit, QTest2Lib
+
+Test misc
+  Command:      echo "test misc"; ./run_qtest_misc.native
+  Run$:         flag(tests)
+
+SourceRepository head
+  Type: git
+  Location: https://github.com/c-cube/containers-misc
+  Browser: https://github.com/c-cube/containers-misc/tree/master/src
