@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 177078e59984b400608f5a8475764531)
+# DO NOT EDIT (digest: 8dc4877a39ec5729b3f2546ae7721f4f)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -47,19 +47,15 @@ true: annot, bin_annot
 <qtest/*.ml{,i,y}>: use_containers_misc
 # Executable run_tests
 <tests/run_tests.{native,byte}>: package(containers)
-<tests/run_tests.{native,byte}>: package(containers.data)
-<tests/run_tests.{native,byte}>: package(containers.string)
 <tests/run_tests.{native,byte}>: package(gen)
 <tests/run_tests.{native,byte}>: package(oUnit)
-<tests/run_tests.{native,byte}>: package(qcheck)
 <tests/run_tests.{native,byte}>: package(sequence)
+<tests/run_tests.{native,byte}>: use_containers_misc
 <tests/*.ml{,i,y}>: package(containers)
-<tests/*.ml{,i,y}>: package(containers.data)
-<tests/*.ml{,i,y}>: package(containers.string)
 <tests/*.ml{,i,y}>: package(gen)
 <tests/*.ml{,i,y}>: package(oUnit)
-<tests/*.ml{,i,y}>: package(qcheck)
 <tests/*.ml{,i,y}>: package(sequence)
+<tests/*.ml{,i,y}>: use_containers_misc
 # Executable lambda
 <examples/lambda.{native,byte}>: package(containers)
 <examples/lambda.{native,byte}>: use_containers_misc

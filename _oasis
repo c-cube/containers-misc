@@ -48,8 +48,7 @@ Executable run_tests
   CompiledObject: best
   MainIs: run_tests.ml
   Build$: flag(tests)
-  BuildDepends: containers, containers.data, oUnit, sequence, gen,
-                qcheck, containers.string
+  BuildDepends: containers_misc, containers, oUnit, sequence, gen
 
 Test misc
   Command:      echo "test misc"; ./run_qtest.native ; ./run_tests.native
