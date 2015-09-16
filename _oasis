@@ -12,6 +12,10 @@ AlphaFeatures: compiled_setup_ml, ocamlbuild_more_args
 
 Synopsis:    Random stuff too experimental for containers
 
+Flag "example"
+  Default:      false
+  Description: build example(s)
+
 Library "containers_misc"
   Path:             src/
   Modules:          AbsSet, Automaton, Bij, CSM, Hashset, LazyGraph, PHashtbl,
@@ -59,6 +63,7 @@ Executable lambda
   MainIs:           lambda.ml
   Install:          false
   CompiledObject:   best
+  Build$:           flag(example)
   BuildDepends:     containers, containers_misc
 
 SourceRepository head
