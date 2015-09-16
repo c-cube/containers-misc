@@ -1,18 +1,10 @@
 # Containers-misc
 
-Random stuff too experimental for containers
+Random stuff too experimental for containers…
+
+Note expectation of stability.
 
 **not released yet**
-
-## Build
-
-Use opam, for instance:
-
-    opam pin add -k git containers-misc https://github.com/c-cube/containers-misc.git
-
-and
-
-    opam install containers-misc
 
 ## Use
 
@@ -28,3 +20,19 @@ The library contains a pack module `Containers_misc`, with the following modules
 - `SmallSet`, a sorted list implementation behaving like a set.
 - `UnionFind`, a functorial imperative Union-Find structure
 - `Univ`, a universal type encoding with affectation
+
+**note**: a possibility is to copy/paste modules into your own project, since
+they are experimental and will probably require modifications before use anyway.
+
+### Build
+
+Depends on [containers](https://github.com/c-cube/ocaml-containers).
+
+Use opam, for instance:
+
+    opam pin add -k git containers-misc https://github.com/c-cube/containers-misc.git
+
+and
+
+    opam install containers-misc
+

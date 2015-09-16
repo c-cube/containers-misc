@@ -1,0 +1,18 @@
+# OASIS_START
+# DO NOT EDIT (digest: f5ed790b7465a45a49676cc2fabd5fd2)
+src/AbsSet
+src/Automaton
+src/Bij
+src/CSM
+src/Hashset
+src/LazyGraph
+src/PHashtbl
+src/PrintBox
+src/RoseTree
+src/SmallSet
+src/UnionFind
+src/Univ
+src/Puf
+src/Backtrack
+src/Utils
+# OASIS_STOP

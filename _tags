@@ -1,4 +1,50 @@
 # OASIS_START
+# DO NOT EDIT (digest: c470de8e69648fa52af2bb672fae4637)
+# Ignore VCS directories, you can use the same kind of rule outside
+# OASIS_START/STOP if you want to exclude directories that contains
+# useless stuff for the build process
+true: annot, bin_annot
+<**/.svn>: -traverse
+<**/.svn>: not_hygienic
+".bzr": -traverse
+".bzr": not_hygienic
+".hg": -traverse
+".hg": not_hygienic
+".git": -traverse
+".git": not_hygienic
+"_darcs": -traverse
+"_darcs": not_hygienic
+# Library containers_misc
+"src/containers_misc.cmxs": use_containers_misc
+"src/absSet.cmx": for-pack(Containers_misc)
+"src/automaton.cmx": for-pack(Containers_misc)
+"src/bij.cmx": for-pack(Containers_misc)
+"src/CSM.cmx": for-pack(Containers_misc)
+"src/hashset.cmx": for-pack(Containers_misc)
+"src/lazyGraph.cmx": for-pack(Containers_misc)
+"src/pHashtbl.cmx": for-pack(Containers_misc)
+"src/printBox.cmx": for-pack(Containers_misc)
+"src/roseTree.cmx": for-pack(Containers_misc)
+"src/smallSet.cmx": for-pack(Containers_misc)
+"src/unionFind.cmx": for-pack(Containers_misc)
+"src/univ.cmx": for-pack(Containers_misc)
+"src/puf.cmx": for-pack(Containers_misc)
+"src/backtrack.cmx": for-pack(Containers_misc)
+"src/utils.cmx": for-pack(Containers_misc)
+<src/*.ml{,i,y}>: package(containers)
+# Executable run_qtest
+<qtest/run_qtest.{native,byte}>: package(QTest2Lib)
+<qtest/run_qtest.{native,byte}>: package(containers)
+<qtest/run_qtest.{native,byte}>: package(gen)
+<qtest/run_qtest.{native,byte}>: package(oUnit)
+<qtest/run_qtest.{native,byte}>: package(sequence)
+<qtest/run_qtest.{native,byte}>: use_containers_misc
+<qtest/*.ml{,i,y}>: package(QTest2Lib)
+<qtest/*.ml{,i,y}>: package(containers)
+<qtest/*.ml{,i,y}>: package(gen)
+<qtest/*.ml{,i,y}>: package(oUnit)
+<qtest/*.ml{,i,y}>: package(sequence)
+<qtest/*.ml{,i,y}>: use_containers_misc
 # OASIS_STOP
 <src/**/*.ml>: warn_A, warn(-4), warn(-44)
 true: no_alias_deps, safe_string

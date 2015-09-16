@@ -1,5 +1,5 @@
 opam-version: "1.2"
-name: "containers-lwt"
+name: "containers-misc"
 version: "dev"
 author: "Simon Cruanes"
 maintainer: "simon.cruanes.2007@m4x.org"
@@ -17,15 +17,13 @@ install: [
 build-doc: [ make "doc" ]
 build-test: [ make "test" ]
 remove: [
-    ["ocamlfind" "remove" "containers-lwt"]
+    ["ocamlfind" "remove" "containers-misc"]
 ]
 depends: [
     "ocamlfind" {build}
-    "containers"
-    "lwt"
 ]
-tags: [ "lwt" "stream" "pipe" ]
-homepage: "https://github.com/c-cube/containers-lwt/"
+tags: [ "misc" "containers" ]
+homepage: "https://github.com/c-cube/containers-misc/"
 available: [ocaml-version >= "4.00.0"]
-dev-repo: "https://github.com/c-cube/containers-lwt.git"
-bug-reports: "https://github.com/c-cube/containers-lwt/issues/"
+dev-repo: "https://github.com/c-cube/containers-misc.git"
+bug-reports: "https://github.com/c-cube/containers-misc/issues/"

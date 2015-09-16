@@ -16,9 +16,10 @@ Library "containers_misc"
   Path:             src/
   Modules:          AbsSet, Automaton, Bij, CSM, Hashset, LazyGraph, PHashtbl,
                     PrintBox, RoseTree, SmallSet, UnionFind, Univ, Puf,
-                    Backtrack
+                    Backtrack, Utils
   Pack:             true
   FindlibName:      containers_misc
+  BuildDepends:     containers
 
 Document "containers-misc"
   Title:                Containers-misc docs
@@ -39,10 +40,10 @@ Executable run_qtest
   CompiledObject:   best
   MainIs:           run_qtest.ml
   Build$:           flag(tests)
-  BuildDepends:     sequence, gen, oUnit, QTest2Lib
+  BuildDepends:     containers, containers_misc, sequence, gen, oUnit, QTest2Lib
 
 Test misc
-  Command:      echo "test misc"; ./run_qtest_misc.native
+  Command:      echo "test misc"; ./run_qtest.native
   Run$:         flag(tests)
 
 SourceRepository head

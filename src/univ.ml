@@ -27,6 +27,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 (** This is largely inspired by https://ocaml.janestreet.com/?q=node/18 . *)
 
+(*$R
+  let int = embed() in
+  let string = embed () in
+  let u = pack int 42 in
+  assert_equal (Some 42) (unpack int u);
+  assert_equal None (unpack string u);
+  set string u "yolo";
+  assert_equal None (unpack int u);
+  assert_equal (Some "yolo") (unpack string u);
+  *)
+
 type t = {
   mutable id : unit ref;
   mutable store : unit -> unit;
