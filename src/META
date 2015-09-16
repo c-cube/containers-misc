@@ -1,0 +1,11 @@
+# OASIS_START
+# DO NOT EDIT (digest: 0f530ad6e5ebf5e7350e8127e843691d)
+version = "0.1"
+description = "Random stuff too experimental for containers"
+archive(byte) = "containers_misc.cma"
+archive(byte, plugin) = "containers_misc.cma"
+archive(native) = "containers_misc.cmxa"
+archive(native, plugin) = "containers_misc.cmxs"
+exists_if = "containers_misc.cma"
+# OASIS_STOP
+
