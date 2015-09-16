@@ -42,9 +42,25 @@ Executable run_qtest
   Build$:           flag(tests)
   BuildDepends:     containers, containers_misc, sequence, gen, oUnit, QTest2Lib
 
+Executable run_tests
+  Path: tests/
+  Install: false
+  CompiledObject: best
+  MainIs: run_tests.ml
+  Build$: flag(tests)
+  BuildDepends: containers, containers.data, oUnit, sequence, gen,
+                qcheck, containers.string
+
 Test misc
-  Command:      echo "test misc"; ./run_qtest.native
+  Command:      echo "test misc"; ./run_qtest.native ; ./run_tests.native
   Run$:         flag(tests)
+
+Executable lambda
+  Path:             examples/
+  MainIs:           lambda.ml
+  Install:          false
+  CompiledObject:   best
+  BuildDepends:     containers, containers_misc
 
 SourceRepository head
   Type: git
