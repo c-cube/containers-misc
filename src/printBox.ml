@@ -198,8 +198,9 @@ module Output = struct
       let l = !_string_len (Bytes.of_string s) in
       _move_x start_pos l
 
-  let map_out ?indent buf map =
-    let _pos = M.fold (map_out_aux ?indent buf) map.map origin in ()
+  let map_out ?(indent=0) buf map =
+    for i = 1 to indent do Buffer.add_char buf ' ' done;
+    let _pos = M.fold (map_out_aux ~indent buf) map.map origin in ()
 
   let map_to_lines ?indent map =
     let buf = Buffer.create 42 in
