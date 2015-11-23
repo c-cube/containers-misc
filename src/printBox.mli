@@ -99,6 +99,23 @@ module Output : sig
 
   val buf_output : ?indent:int -> out_channel -> buffer -> unit
   (** Print the buffer on the given channel *)
+
+  (** {6 Unicode instance : a string map} *)
+
+  type map
+
+  val make_map : unit -> map * t
+  (** New map, and the corresponding output [t] (maps are mutable).
+      Calls to [t.put_char], [t.put_string], and [t.put_sub_string]
+      should *NOT* writer characters on overlapping positions. *)
+
+  val map_to_lines : ?indent:int -> map -> string
+  (** Print the contents of the map into a string.
+      @param indent number of spaces to insert in front of the lines *)
+
+  val map_output : ?indent:int -> out_channel -> map -> unit
+  (** Print the map on the given channel *)
+
 end
 
 (** {2 Box Combinators} *)
@@ -194,6 +211,8 @@ val render : Output.t -> Box.t -> unit
 val to_string : Box.t -> string
 
 val output : ?indent:int -> out_channel -> Box.t -> unit
+
+val output_unicode : ?indent:int -> out_channel -> Box.t -> unit
 
 (** {2 Simple Structural Interface} *)
 

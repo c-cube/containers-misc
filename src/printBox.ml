@@ -28,6 +28,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 type position = { x:int ; y: int }
 
+let _cmp pos1 pos2 =
+  match Pervasives.compare pos1.y pos2.y with
+  | 0 -> Pervasives.compare pos1.x pos2.x
+  | x -> x
+
 let origin = {x=0; y=0;}
 
 let _move pos x y = {x=pos.x + x; y=pos.y + y}
@@ -133,6 +138,79 @@ module Output = struct
       output oc line.bl_str 0 line.bl_len;
       output_char oc '\n';
     done
+
+  (** Internal sort-of buffer suitable for unicode strings.
+      It is a map from start position to a printable entity (string or character)
+      All printable sequences are supposed to *NOT* introduce new lines *)
+  module M = Map.Make(struct type t = position let compare = _cmp end)
+
+  type printable =
+    | Char of char
+    | String of string
+
+  type map = {
+    mutable map : printable M.t
+  }
+
+  (* Note: we trust the user not to mess things up relating to
+     strings overlapping because of bad positions *)
+  let _map_put_char map pos c =
+    map.map <- M.add pos (Char c) map.map
+
+  let _map_put_string map pos s =
+    map.map <- M.add pos (String s) map.map
+
+  let _map_put_sub_string map pos s s_i s_len =
+    map.map <- M.add pos (String (String.sub s s_i s_len)) map.map
+
+  let make_map () =
+    let map  = { map = M.empty } in
+    let map_out = {
+      put_char = _map_put_char map;
+      put_string = _map_put_string map;
+      put_sub_string = _map_put_sub_string map;
+      flush = (fun () -> ());
+    } in
+    map, map_out
+
+  let rec map_out_aux ?(indent=0) buf start_pos p curr_pos =
+    assert (_cmp curr_pos start_pos <= 0);
+    (* Go up to the expected location *)
+    for i = curr_pos.y to start_pos.y - 1 do
+      Buffer.add_char buf '\n';
+      for j = 1 to indent do
+        Buffer.add_char buf ' '
+      done
+    done;
+    for i = curr_pos.x to start_pos.x - 1 do
+      Buffer.add_char buf ' '
+    done;
+    (* Print the interesting part *)
+    match p with
+    | Char c ->
+      Buffer.add_char buf c;
+      _move_x start_pos 1
+    | String s ->
+      Buffer.add_string buf s;
+      (* We could use Bytes.unsafre_of_string as long as !string_len
+         does not try to mutate the string (which it should have no
+         reason to do), but just to be safe... *)
+      let l = !_string_len (Bytes.of_string s) in
+      _move_x start_pos l
+
+  let map_out ?indent buf map =
+    let _pos = M.fold (map_out_aux ?indent buf) map.map origin in ()
+
+  let map_to_lines ?indent map =
+    let buf = Buffer.create 42 in
+    map_out ?indent buf map;
+    Buffer.contents buf
+
+  let map_output ?indent oc map =
+    let buf = Buffer.create 42 in
+    map_out ?indent buf map;
+    Buffer.output_buffer oc buf
+
 end
 
 (* find [c] in [s], starting at offset [i] *)
@@ -465,6 +543,12 @@ let output ?(indent=0) oc b =
   let buf, out = Output.make_buffer () in
   render out b;
   Output.buf_output ~indent oc buf;
+  flush oc
+
+let output_unicode ?indent oc b =
+  let map, out = Output.make_map () in
+  render out b;
+  Output.map_output ?indent oc map;
   flush oc
 
 (** {2 Simple Structural Interface} *)
