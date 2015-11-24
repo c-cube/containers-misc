@@ -540,13 +540,7 @@ let to_string b =
   render out b;
   Output.buf_to_lines buf
 
-let output ?(indent=0) oc b =
-  let buf, out = Output.make_buffer () in
-  render out b;
-  Output.buf_output ~indent oc buf;
-  flush oc
-
-let output_unicode ?indent oc b =
+let output ?indent oc b =
   let map, out = Output.make_map () in
   render out b;
   Output.map_output ?indent oc map;

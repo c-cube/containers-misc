@@ -212,8 +212,6 @@ val to_string : Box.t -> string
 
 val output : ?indent:int -> out_channel -> Box.t -> unit
 
-val output_unicode : ?indent:int -> out_channel -> Box.t -> unit
-
 (** {2 Simple Structural Interface} *)
 
 type 'a ktree = unit -> [`Nil | `Node of 'a * 'a ktree list]
