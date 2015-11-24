@@ -91,7 +91,9 @@ module Output : sig
   type buffer
 
   val make_buffer : unit -> buffer * t
-  (** New buffer, and the corresponding output (buffers are mutable) *)
+  (** New buffer, and the corresponding output (buffers are mutable)
+      Calls to [put_char], [put_string], and [put_sub_string]
+      should *NOT* write characters on overlapping positions. *)
 
   val buf_to_lines : ?indent:int -> buffer -> string
   (** Print the content of the buffer into a string.
@@ -99,22 +101,6 @@ module Output : sig
 
   val buf_output : ?indent:int -> out_channel -> buffer -> unit
   (** Print the buffer on the given channel *)
-
-  (** {6 Unicode instance : a string map} *)
-
-  type map
-
-  val make_map : unit -> map * t
-  (** New map, and the corresponding output [t] (maps are mutable).
-      Calls to [t.put_char], [t.put_string], and [t.put_sub_string]
-      should *NOT* write characters on overlapping positions. *)
-
-  val map_to_lines : ?indent:int -> map -> string
-  (** Print the contents of the map into a string.
-      @param indent number of spaces to insert in front of the lines *)
-
-  val map_output : ?indent:int -> out_channel -> map -> unit
-  (** Print the map on the given channel *)
 
 end
 
