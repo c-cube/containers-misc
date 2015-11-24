@@ -107,7 +107,7 @@ module Output : sig
   val make_map : unit -> map * t
   (** New map, and the corresponding output [t] (maps are mutable).
       Calls to [t.put_char], [t.put_string], and [t.put_sub_string]
-      should *NOT* writer characters on overlapping positions. *)
+      should *NOT* write characters on overlapping positions. *)
 
   val map_to_lines : ?indent:int -> map -> string
   (** Print the contents of the map into a string.
