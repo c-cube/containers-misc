@@ -59,87 +59,7 @@ module Output = struct
   let put_string out pos s = out.put_string pos s
   let put_sub_string out pos s s_i s_len = out.put_sub_string pos s s_i s_len
 
-  (** An internal buffer, suitable for writing efficiently, then
-      convertable into a list of lines *)
-  type buffer = {
-    mutable buf_lines : buf_line array;
-    mutable buf_len : int;
-  }
-  and buf_line = {
-    mutable bl_str : Bytes.t;
-    mutable bl_len : int;
-  }
-
-  let _make_line _ = {bl_str=Bytes.empty; bl_len=0}
-
-  let _ensure_lines buf i =
-    if i >= Array.length buf.buf_lines
-    then (
-      let lines' = Array.init (2 * i + 5) _make_line in
-      Array.blit buf.buf_lines 0 lines' 0 buf.buf_len;
-      buf.buf_lines <- lines';
-    )
-
-  let _ensure_line line i =
-    if i >= Bytes.length line.bl_str
-    then (
-      let str' = Bytes.make (2 * i + 5) ' ' in
-      Bytes.blit line.bl_str 0 str' 0 line.bl_len;
-      line.bl_str <- str';
-    )
-
-  let _buf_put_char buf pos c =
-    _ensure_lines buf pos.y;
-    _ensure_line buf.buf_lines.(pos.y) pos.x;
-    buf.buf_len <- max buf.buf_len (pos.y+1);
-    let line = buf.buf_lines.(pos.y) in
-    Bytes.set line.bl_str pos.x c;
-    line.bl_len <- max line.bl_len (pos.x+1)
-
-  let _buf_put_sub_string buf pos s s_i s_len =
-    _ensure_lines buf pos.y;
-    _ensure_line buf.buf_lines.(pos.y) (pos.x + s_len);
-    buf.buf_len <- max buf.buf_len (pos.y+1);
-    let line = buf.buf_lines.(pos.y) in
-    String.blit s s_i line.bl_str pos.x s_len;
-    line.bl_len <- max line.bl_len (pos.x+s_len)
-
-  let _buf_put_string buf pos s =
-    _buf_put_sub_string buf pos s 0 (String.length s)
-
-  (* create a new buffer *)
-  let make_buffer () =
-    let buf = {
-      buf_lines = Array.init 16 _make_line;
-      buf_len = 0;
-    } in
-    let buf_out = {
-      put_char = _buf_put_char buf;
-      put_sub_string = _buf_put_sub_string buf;
-      put_string = _buf_put_string buf;
-      flush = (fun () -> ());
-    } in
-    buf, buf_out
-
-  let buf_to_lines ?(indent=0) buf =
-    let buffer = Buffer.create (5 + buf.buf_len * 32) in
-    for i = 0 to buf.buf_len - 1 do
-      for _k = 1 to indent do Buffer.add_char buffer ' ' done;
-      let line = buf.buf_lines.(i) in
-      Buffer.add_substring buffer (Bytes.unsafe_to_string line.bl_str) 0 line.bl_len;
-      Buffer.add_char buffer '\n';
-    done;
-    Buffer.contents buffer
-
-  let buf_output ?(indent=0) oc buf =
-    for i = 0 to buf.buf_len - 1 do
-      for _k = 1 to indent do output_char oc ' '; done;
-      let line = buf.buf_lines.(i) in
-      output oc line.bl_str 0 line.bl_len;
-      output_char oc '\n';
-    done
-
-  (** Internal sort-of buffer suitable for unicode strings.
+  (** Internal multi-line buffer suitable for unicode strings.
       It is a map from start position to a printable entity (string or character)
       All printable sequences are supposed to *NOT* introduce new lines *)
   module M = Map.Make(struct type t = position let compare = _cmp end)
@@ -148,32 +68,32 @@ module Output = struct
     | Char of char
     | String of string
 
-  type map = {
+  type buffer = {
     mutable map : printable M.t
   }
 
   (* Note: we trust the user not to mess things up relating to
      strings overlapping because of bad positions *)
-  let _map_put_char map pos c =
-    map.map <- M.add pos (Char c) map.map
+  let _buf_put_char buf pos c =
+    buf.map <- M.add pos (Char c) buf.map
 
-  let _map_put_string map pos s =
-    map.map <- M.add pos (String s) map.map
+  let _buf_put_string buf pos s =
+    buf.map <- M.add pos (String s) buf.map
 
-  let _map_put_sub_string map pos s s_i s_len =
-    map.map <- M.add pos (String (String.sub s s_i s_len)) map.map
+  let _buf_put_sub_string buf pos s s_i s_len =
+    buf.map <- M.add pos (String (String.sub s s_i s_len)) buf.map
 
-  let make_map () =
-    let map  = { map = M.empty } in
-    let map_out = {
-      put_char = _map_put_char map;
-      put_string = _map_put_string map;
-      put_sub_string = _map_put_sub_string map;
+  let make_buffer () =
+    let buf  = { map = M.empty } in
+    let buf_out = {
+      put_char = _buf_put_char buf;
+      put_string = _buf_put_string buf;
+      put_sub_string = _buf_put_sub_string buf;
       flush = (fun () -> ());
     } in
-    map, map_out
+    buf, buf_out
 
-  let rec map_out_aux ?(indent=0) buf start_pos p curr_pos =
+  let rec buf_out_aux ?(indent=0) buf start_pos p curr_pos =
     assert (_cmp curr_pos start_pos <= 0);
     (* Go up to the expected location *)
     for i = curr_pos.y to start_pos.y - 1 do
@@ -198,18 +118,18 @@ module Output = struct
       let l = !_string_len (Bytes.of_string s) in
       _move_x start_pos l
 
-  let map_out ?(indent=0) buf map =
+  let buf_out ?(indent=0) buf b =
     for i = 1 to indent do Buffer.add_char buf ' ' done;
-    let _pos = M.fold (map_out_aux ~indent buf) map.map origin in ()
+    let _pos = M.fold (buf_out_aux ~indent buf) b.map origin in ()
 
-  let map_to_lines ?indent map =
+  let buf_to_lines ?indent b =
     let buf = Buffer.create 42 in
-    map_out ?indent buf map;
+    buf_out ?indent buf b;
     Buffer.contents buf
 
-  let map_output ?indent oc map =
+  let buf_output ?indent oc b =
     let buf = Buffer.create 42 in
-    map_out ?indent buf map;
+    buf_out ?indent buf b;
     Buffer.output_buffer oc buf
 
 end
@@ -540,16 +460,10 @@ let to_string b =
   render out b;
   Output.buf_to_lines buf
 
-let output ?(indent=0) oc b =
+let output ?indent oc b =
   let buf, out = Output.make_buffer () in
   render out b;
-  Output.buf_output ~indent oc buf;
-  flush oc
-
-let output_unicode ?indent oc b =
-  let map, out = Output.make_map () in
-  render out b;
-  Output.map_output ?indent oc map;
+  Output.buf_output ?indent oc buf;
   flush oc
 
 (** {2 Simple Structural Interface} *)
