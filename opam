@@ -21,6 +21,7 @@ remove: [
 ]
 depends: [
     "ocamlfind" {build}
+    "oasis" {build}
 ]
 tags: [ "misc" "containers" ]
 homepage: "https://github.com/c-cube/containers-misc/"
