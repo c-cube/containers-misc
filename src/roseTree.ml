@@ -142,6 +142,33 @@ module Zipper = struct
     | None                -> zipper
     | Some parent_zipper  -> root parent_zipper
 
+  let parent_seq zipper yield =
+    let rec iter zp =
+      (* includes the current zipper *)
+      yield zp;
+      match parent zipper with
+      | None -> ()
+      | Some pzp -> iter pzp in
+    iter zipper
+
+  let children_seq zipper yield =
+    match tree zipper with
+    | `Node (_, []) -> ()
+    | `Node (value, left::rest) ->
+      let first =
+        { tree = left;
+          lefts = [];
+          rights = rest;
+          parents =
+            {left_siblings=zipper.lefts; value; right_siblings=zipper.rights}
+            ::zipper.parents
+        } in
+      let rec go_from sibling =
+        match right_sibling sibling with
+        | None -> ()
+        | Some zp -> yield zp; go_from zp in
+      go_from first
+
   let nth_child n ({ tree = `Node (value, children) ; _ } as zipper ) =
     let lefts, maybe_child, rev_rights, _counter = List.fold_left (
         fun (lefts, maybe_child, rev_rights, counter) tree ->
@@ -210,4 +237,29 @@ module Zipper = struct
         parents = other_parents ;
       }
     | _ -> None
+
+  let at_leaf zipper = match zipper.tree with
+    | `Node (_, []) -> true
+    | _ -> false
+
+  let parent_fold f start (zipper:'a t) =
+    let rec aux (acc, zp) = match parent zp with
+      | None -> acc
+      | Some pzp -> aux (f acc zp, pzp) in
+    aux (start, zipper)
+
+  let address zipper =
+    let f ilist zp = List.length zp.lefts :: ilist in
+    parent_fold f [] zipper
+
+  let zip_down addr zipper =
+    (* relative address, no short-circuit *)
+    let f maybe_zip i = match maybe_zip with
+      | None -> None
+      | Some zip -> nth_child i zip in
+    List.fold_left f (Some zipper) addr
+
+  let zip_to addr zipper =
+    zip_down addr (root zipper)
+
 end

@@ -97,12 +97,22 @@ module Zipper : sig
   *)
   val root : 'a t -> 'a t
 
+  (** Iterate over the ancestors up to the root, beginning with the current
+   * node *)
+  val parent_seq: 'a t -> ('a t -> 'b) -> unit
+
+  (** Fold over the sequence of ancestors up to the root *)
+  val parent_fold : ('b -> 'a t -> 'b) -> 'b -> 'a t -> 'b
+
   (**
      Moves to the nth child of the current node. Accepts the child number,
      starting from zero. Returns [Some new_zipper], or [None] if there was no
      such child.
   *)
   val nth_child : int -> 'a t -> ('a t) option
+
+  (** Iterate over the immediate children *)
+  val children_seq: 'a t -> ('a t -> 'b) -> unit
 
   (**
      Inserts a new node as the leftmost child of the currently focused node.
@@ -141,5 +151,26 @@ module Zipper : sig
      focused on the parent of the focused node.
   *)
   val delete : 'a t -> ('a t) option
+
+  (** Are we at a leaf node? *)
+  val at_leaf : 'a t -> bool
+
+  (**
+     Give the address of the current zipper position, as an integer list of
+     child_indices descending from the root from left to right
+  *)
+  val address : 'a t -> int list
+
+  (**
+     Move down from the current node by the relative address given as an int
+     list of child indices.
+  *)
+  val zip_down : int list -> 'a t -> 'a t option
+
+  (**
+     Move to the node at an address relative to the root, given as an int
+     list of child indices.
+  *)
+  val zip_to : int list -> 'a t -> 'a t option
 
 end
