@@ -104,13 +104,12 @@ module Zipper = struct
   let tree zipper = zipper.tree
 
   let left_sibling zipper =
-    let rev_lefts = List.rev zipper.lefts in
-    match rev_lefts with
+    match zipper.lefts with
     | []    -> None
-    | last_left::tail_rev_lefts ->
+    | next_left::farther_lefts ->
       Some {
-        tree = last_left ;
-        lefts = List.rev tail_rev_lefts;
+        tree = next_left ;
+        lefts = farther_lefts;
         rights = zipper.tree::zipper.rights ;
         parents = zipper.parents
       }
@@ -118,11 +117,11 @@ module Zipper = struct
   let right_sibling zipper =
     match zipper.rights with
     | []                  -> None
-    | right::other_rights ->
+    | next_right::farther_rights ->
       Some {
-        tree = right ;
+        tree = next_right ;
         lefts = zipper.tree::zipper.lefts ;
-        rights = other_rights ;
+        rights = farther_rights ;
         parents = zipper.parents ;
       }
 
@@ -131,7 +130,7 @@ module Zipper = struct
     | []                    -> None
     | { left_siblings ; value ; right_siblings }::other_parents ->
       Some {
-        tree = `Node (value, zipper.lefts @ [zipper.tree] @ zipper.rights) ;
+        tree = `Node (value, List.rev zipper.lefts @ [zipper.tree] @ zipper.rights) ;
         lefts = left_siblings ;
         rights = right_siblings ;
         parents = other_parents ;
@@ -161,7 +160,7 @@ module Zipper = struct
       | Some child  ->
         Some {
           tree = child ;
-          lefts = List.rev lefts;
+          lefts = lefts;
           rights = List.rev rev_rights ;
           parents = {
             left_siblings = zipper.lefts ;
@@ -199,13 +198,13 @@ module Zipper = struct
 
   let delete ({ tree = `Node (value, children) ; _ } as zipper ) =
     match zipper with
-    | { lefts = first_left::other_lefts ; _  }     ->
-      Some { zipper with tree = first_left ; lefts = other_lefts }
-    | { rights = first_right::other_rights ; _ }  ->
-      Some { zipper with tree = first_right ; rights = other_rights }
+    | { lefts = next_left::farther_lefts ; _  }     ->
+      Some { zipper with tree = next_left ; lefts = farther_lefts }
+    | { rights = next_right::farther_rights ; _ }  ->
+      Some { zipper with tree = next_right ; rights = farther_rights }
     | { parents = { left_siblings ; value ; right_siblings }::other_parents ; _ } ->
       Some {
-        tree = `Node (value, zipper.lefts @ zipper.rights) ;
+        tree = `Node (value, List.rev zipper.lefts @ zipper.rights) ;
         lefts = left_siblings ;
         rights = right_siblings ;
         parents = other_parents ;
