@@ -143,7 +143,7 @@ module Zipper = struct
     | Some parent_zipper  -> root parent_zipper
 
   let nth_child n ({ tree = `Node (value, children) ; _ } as zipper ) =
-    let lefts, maybe_child, rev_rights, counter = List.fold_left (
+    let lefts, maybe_child, rev_rights, _counter = List.fold_left (
         fun (lefts, maybe_child, rev_rights, counter) tree ->
           let lefts', maybe_child', rev_rights' =
             match counter with
@@ -196,7 +196,7 @@ module Zipper = struct
   let replace tree zipper =
     { zipper with tree }
 
-  let delete ({ tree = `Node (value, children) ; _ } as zipper ) =
+  let delete ({ tree = `Node (_value, _children) ; _ } as zipper ) =
     match zipper with
     | { lefts = next_left::farther_lefts ; _  }     ->
       Some { zipper with tree = next_left ; lefts = farther_lefts }
