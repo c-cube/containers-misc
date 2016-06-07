@@ -130,7 +130,7 @@ module Zipper = struct
     | []                    -> None
     | { left_siblings ; value ; right_siblings }::other_parents ->
       Some {
-        tree = `Node (value, List.rev zipper.lefts @ [zipper.tree] @ zipper.rights) ;
+        tree = `Node (value, List.rev_append zipper.lefts [zipper.tree] @ zipper.rights) ;
         lefts = left_siblings ;
         rights = right_siblings ;
         parents = other_parents ;
@@ -204,7 +204,7 @@ module Zipper = struct
       Some { zipper with tree = next_right ; rights = farther_rights }
     | { parents = { left_siblings ; value ; right_siblings }::other_parents ; _ } ->
       Some {
-        tree = `Node (value, List.rev zipper.lefts @ zipper.rights) ;
+        tree = `Node (value, List.rev_append zipper.lefts zipper.rights) ;
         lefts = left_siblings ;
         rights = right_siblings ;
         parents = other_parents ;
