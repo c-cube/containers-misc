@@ -74,7 +74,17 @@ val origin : position
 
 val set_string_len : (Bytes.t -> int) -> unit
 (** Set which function is used to compute string length. Typically
-    to be used with a unicode-sensitive length function *)
+    to be used with a unicode-sensitive length function.
+    An example of such function for utf8 encoded strings is the following
+    (it uses the Uutf library):
+    {[
+      let string_leng s =
+        let d = Uutf.decoder (`String s) in
+        while (let c = Uutf.decode d in c <> `Await || c <> `End) do () done;
+        Uutf.decoder_count d
+    ]}
+    Note that this function assumes there is no newline character in the given string.
+    *)
 
 (** {2 Output} *)
 
@@ -91,7 +101,9 @@ module Output : sig
   type buffer
 
   val make_buffer : unit -> buffer * t
-  (** New buffer, and the corresponding output (buffers are mutable) *)
+  (** New buffer, and the corresponding output (buffers are mutable)
+      Calls to [put_char], [put_string], and [put_sub_string]
+      should *NOT* write characters on overlapping positions. *)
 
   val buf_to_lines : ?indent:int -> buffer -> string
   (** Print the content of the buffer into a string.
@@ -99,6 +111,7 @@ module Output : sig
 
   val buf_output : ?indent:int -> out_channel -> buffer -> unit
   (** Print the buffer on the given channel *)
+
 end
 
 (** {2 Box Combinators} *)
